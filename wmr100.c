@@ -277,23 +277,23 @@ int verify_checksum(unsigned char * buf, int len)
 //     fflush(out);
 // }
 
-void wmr_output_stdout(WMR *wmr, char *msg) {
-    printf("%s\n", msg);
-    fflush(stdout);
-}
+// void wmr_output_stdout(WMR *wmr, char *msg) {
+//     printf("%s\n", msg);
+//     fflush(stdout);
+// }
 
-void wmr_output_zmq(WMR *wmr, char *topic, char *msg) {
-    int len = strlen(topic) + 1 + strlen(msg);
-    void *buf = malloc(len);
-    char *data = (char *)buf;
+// void wmr_output_zmq(WMR *wmr, char *topic, char *msg) {
+//     int len = strlen(topic) + 1 + strlen(msg);
+//     void *buf = malloc(len);
+//     char *data = (char *)buf;
 
-     message format is: topic\0json, for pubsub subscription matching 
-    strcpy(data, topic);
-    data += strlen(topic) + 1;
-    memcpy(data, msg, strlen(msg));
-    zmq_send(wmr->zmq_sock, buf, len, 0);
-    free(buf);
-}
+//      message format is: topic\0json, for pubsub subscription matching 
+//     strcpy(data, topic);
+//     data += strlen(topic) + 1;
+//     memcpy(data, msg, strlen(msg));
+//     zmq_send(wmr->zmq_sock, buf, len, 0);
+//     free(buf);
+// }
 
 void wmr_log_data(WMR *wmr, char *topic, char *msg) {
     char timestamp[200];
@@ -317,13 +317,14 @@ void wmr_log_data(WMR *wmr, char *topic, char *msg) {
     // if (gOutputFile) {
     //     wmr_output_file(wmr, buf);
     // }
-    if (gOutputStdout) {
-        wmr_output_stdout(wmr, buf);
-    }
+    // if (gOutputStdout) {
+    //     wmr_output_stdout(wmr, buf);
+    // }
     // if (gOutputZmq) {
     //     wmr_output_zmq(wmr, topic, buf);
     // }
 
+    printf("%s\n", buf);
     free(buf);
 }
 
