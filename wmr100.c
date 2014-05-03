@@ -49,17 +49,14 @@ unsigned char const INIT_PACKET2[] = { 0x01, 0xd0, 0x08, 0x01, 0x00, 0x00, 0x00,
 typedef struct _WMR {
     int pos;
     int remain;
-    unsigned char* buffer;
+    unsigned char buffer[BUF_SIZE];
     HIDInterface *hid;
 } WMR;
 
-WMR *wmr = NULL;
-
-
+/*
 void dump_packet(unsigned char *packet, int len)
 {
     int i;
-
     printf("Receive packet len %d: ", len);
     for(i = 0; i < len; ++i) {
         printf("%02x ", (int)packet[i]);
@@ -79,6 +76,7 @@ WMR *wmr_new()
     }
     return wmr;
 }
+*/
 
 void wmr_send_packet_init(WMR *wmr)
 {
@@ -225,7 +223,7 @@ int verify_checksum(unsigned char * buf, int len)
     return 0;
 }
 
-
+/*
 void wmr_log_data(WMR *wmr, char *topic, char *msg) 
 {
     // char timestamp[200];
@@ -249,6 +247,7 @@ void wmr_log_data(WMR *wmr, char *topic, char *msg)
     printf("%s\n", buf);
     free(buf);
 }
+*/
 
 /****************************
   Data handlers
@@ -312,7 +311,7 @@ void wmr_handle_temp(WMR *wmr, unsigned char *data, int len)
     dewpoint = (data[6] + ((data[7] & 0x0f) << 8)) / 10.0;
     if ((data[7] >> 4) == 0x8) { dewpoint = -dewpoint; }
 
-    printf("=S%d t=%.1f h=%d d=%.1f\n", sensor, temp, humidity, dewpoint);
+    printf("* s=%d t=%.1f h=%d d=%.1f\n", sensor, temp, humidity, dewpoint);
 
     // asprintf(&msg,
     //          "\"sensor\": %d, "
@@ -352,7 +351,7 @@ void wmr_handle_water(WMR *wmr, unsigned char *data, int len)
 
 void wmr_handle_pressure(WMR *wmr, unsigned char *data, int len)
 {
-    printf("=S0 p=%d\n", data[2] + ((data[3] & 0x0f) << 8));
+    printf("* p=%d\n", data[2] + ((data[3] & 0x0f) << 8));
 
     /*
     int pressure, forecast, alt_pressure, alt_forecast;
@@ -422,7 +421,7 @@ void wmr_handle_wind(WMR *wmr, unsigned char *data, int len)
 void wmr_handle_clock(WMR *wmr, unsigned char *data, int len)
 {
     if(data[0]) {
-        printf("=S0 pwr=%02x\n", data[0] >> 4);
+        printf("* pwr=%02x\n", data[0] >> 4);
     }
 
     // int power, powered, battery, rf, level, mi, hr, dy, mo, yr;
@@ -513,19 +512,15 @@ int main(int argc, char* argv[])
     signal(SIGINT, cleanup);
     signal(SIGTERM, cleanup);
 
-    wmr = wmr_new();
-    if (wmr == NULL) {
-        perror("wmr_new failed");
-        exit(1);
-    }
+    WMR* wmr = malloc(sizeof(WMR));
+    wmr->remain = 0;
 
     if( wmr_init(wmr) != 0) {
         perror("Failed to init USB device, exiting.");
         exit(1);
     }
 
-    printf("Found on USB: %s\n", wmr->hid->id);
-    printf("WMR: HID: %p\n", (void *)wmr->hid);
+    // printf("Found on USB: %s\n", wmr->hid->id);
 
     while(true) {
         wmr_read_data(wmr);
