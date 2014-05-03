@@ -261,41 +261,39 @@ void wmr_log_data(WMR *wmr, char *topic, char *msg)
 void wmr_handle_rain(WMR *wmr, unsigned char *data, int len) 
 {
     // NOTE: function disabled
-    return; 
-    //
 
-    int sensor, power, rate;
-    float hour, day, total;
-    int smi, sho, sda, smo, syr;
-    char *msg;
+    // int sensor, power, rate;
+    // float hour, day, total;
+    // int smi, sho, sda, smo, syr;
+    // char *msg;
     
-    sensor = data[2] & 0x0f;
-    power = data[2] >> 4;
-    rate = data[3];
+    // sensor = data[2] & 0x0f;
+    // power = data[2] >> 4;
+    // rate = data[3];
     
-    hour = ((data[5] << 8) + data[4]) * 25.4 / 100.0; /* mm */
-    day = ((data[7] << 8) + data[6]) * 25.4 / 100.0; /* mm */
-    total = ((data[9] << 8) + data[8]) * 25.4 / 100.0; /* mm */
+    // hour = ((data[5] << 8) + data[4]) * 25.4 / 100.0; /* mm */
+    // day = ((data[7] << 8) + data[6]) * 25.4 / 100.0; /* mm */
+    // total = ((data[9] << 8) + data[8]) * 25.4 / 100.0; /* mm */
 
-    smi = data[10];
-    sho = data[11];
-    sda = data[12];
-    smo = data[13];
-    syr = data[14] + 2000;
+    // smi = data[10];
+    // sho = data[11];
+    // sda = data[12];
+    // smo = data[13];
+    // syr = data[14] + 2000;
 
-    asprintf(&msg,
-             "\"sensor\": %d, "
-             "\"power\": %d, "
-             "\"rate\": %d, "
-             "\"hour_total\": %.2f, "
-             "\"day_total\": %.2f, "
-             "\"all_total\": %.2f, "
-             "\"since\": \"%04d%02d%02d%02d%02d\", "
-             "\"source\": \"wmr100.%d\", "
-             "\"origin\": \"wmr100\"",
-             sensor, power, rate, hour, day, total, syr, smo, sda, sho, smi, sensor);
-    wmr_log_data(wmr, "rain", msg);
-    free(msg);
+    // asprintf(&msg,
+    //          "\"sensor\": %d, "
+    //          "\"power\": %d, "
+    //          "\"rate\": %d, "
+    //          "\"hour_total\": %.2f, "
+    //          "\"day_total\": %.2f, "
+    //          "\"all_total\": %.2f, "
+    //          "\"since\": \"%04d%02d%02d%02d%02d\", "
+    //          "\"source\": \"wmr100.%d\", "
+    //          "\"origin\": \"wmr100\"",
+    //          sensor, power, rate, hour, day, total, syr, smo, sda, sho, smi, sensor);
+    // wmr_log_data(wmr, "rain", msg);
+    // free(msg);
 }
 
 void wmr_handle_temp(WMR *wmr, unsigned char *data, int len)
@@ -419,7 +417,7 @@ void wmr_handle_wind(WMR *wmr, unsigned char *data, int len)
 void wmr_handle_clock(WMR *wmr, unsigned char *data, int len)
 {
     if(data[0]) {
-        printf("=S0 pwr=%02x", data[0])
+        printf("=S0 pwr=%02x", data[0]);
     }
 
     // int power, powered, battery, rf, level, mi, hr, dy, mo, yr;
