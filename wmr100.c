@@ -418,24 +418,25 @@ void wmr_handle_wind(WMR *wmr, unsigned char *data, int len)
 
 void wmr_handle_clock(WMR *wmr, unsigned char *data, int len)
 {
-    int power, powered, battery, rf, level, mi, hr, dy, mo, yr;
+    if(data[0]) {
+        printf("=S0 pwr=%02x", data[0])
+    }
+    
+    // int power, powered, battery, rf, level, mi, hr, dy, mo, yr;
     // char *msg;
 
-    power = data[0] >> 4;
-    powered = power >> 3;
-    battery = (power & 0x4) >> 2;
-    rf = (power & 0x2) >> 1;
-    level = power & 0x1;
+    // power = data[0] >> 4;
+    // powered = power >> 3;
+    // battery = (power & 0x4) >> 2;
+    // rf = (power & 0x2) >> 1;
+    // level = power & 0x1;
 
-    mi = data[4];
-    hr = data[5];
-    dy = data[6];
-    mo = data[7];
-    yr = data[8] + 2000;
+    // mi = data[4];
+    // hr = data[5];
+    // dy = data[6];
+    // mo = data[7];
+    // yr = data[8] + 2000;
 
-    if(power) {
-        printf("=S0 pwr=%02x")
-    }
     // asprintf(&msg,
     //          "\"at\": \"%04d%02d%02d%02d%02d\", "
     //          "\"powered\": %d, "
