@@ -73,4 +73,4 @@ Usage
 Run:
     ./wmr100
 
-This will dump data to stdout. Data lines begins with '*'.
+This will dump data to stdout. Each data lines begins with '*'.
