@@ -293,7 +293,7 @@ void wmr_read_data(WMR *wmr)
                     // wind
                     printf("* w=%.1f b=%d pwr=%d\n", 
                         ((data[5] & 0x0f)*256 + data[4]) / 10.0, 
-                        (data[2] & 0x0f)*360/16, 
+                        (int)(data[2] & 0x0f) * 360/16, 
                         (data[0] >> 4)
                     );
                     break;
