@@ -249,11 +249,11 @@ void wmr_log_data(WMR *wmr, char *topic, char *msg)
     // strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", tmp);
     asprintf(&buf,
         "{\"topic\": \"%s\", "
-        "\"timestamp\": \"%s.%06d\", "
+        // "\"timestamp\": \"%s.%06d\", "
         "%s}",
         topic,
         // timestamp,
-        (int)tv.tv_usec,
+        // (int)tv.tv_usec,
         msg);
 
     printf("%s\n", buf);
