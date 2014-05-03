@@ -156,14 +156,14 @@ int wmr_init(WMR *wmr)
     return 0;
 }
 
-void wmr_print_state(WMR *wmr)
-{
-    fprintf(stderr, "WMR: HID: %p\n", (void *)wmr->hid);
-}
 
 int wmr_close(WMR *wmr)
 {
     hid_return ret;
+
+    if(wmr == NULL) {
+        return 0;
+    }
 
     ret = hid_close(wmr->hid);
     if (ret != HID_RET_SUCCESS) {
@@ -180,10 +180,6 @@ int wmr_close(WMR *wmr)
         return 1;
     }
 
-    // if (wmr->data_fh && wmr->data_fh != stdout) {
-    //     fclose(wmr->data_fh);
-    //     wmr->data_fh = NULL;
-    // }
     return 0;
 }
 
@@ -206,11 +202,9 @@ void wmr_read_packet(WMR *wmr)
     if (len > 7) len = 7; /* limit */
     wmr->pos = 1;
     wmr->remain = len;
-    
-    /* dump_packet(wmr->buffer + 1, wmr->remain); */
 }
 
-int wmr_read_byte(WMR *wmr)
+unsigned char wmr_read_byte(WMR *wmr)
 {
     while(wmr->remain == 0) {
         wmr_read_packet(wmr);
@@ -324,7 +318,7 @@ void wmr_handle_temp(WMR *wmr, unsigned char *data, int len)
     dewpoint = (data[6] + ((data[7] & 0x0f) << 8)) / 10.0;
     if ((data[7] >> 4) == 0x8) { dewpoint = -dewpoint; }
 
-    printf("=S%d t=%.1f h=%d d=%.1f", sensor, temp, humidity, dewpoint)
+    printf("=S%d t=%.1f h=%d d=%.1f", sensor, temp, humidity, dewpoint);
 
     // asprintf(&msg,
     //          "\"sensor\": %d, "
@@ -386,11 +380,13 @@ void wmr_handle_pressure(WMR *wmr, unsigned char *data, int len)
 
 void wmr_handle_uv(WMR *wmr, unsigned char *data, int len)
 {
-    char *msg;
+    // NOTE: not implemented
 
-    asprintf(&msg, "\"todo\": 1");
-    wmr_log_data(wmr, "uv", msg);
-    free(msg);
+    // char *msg;
+
+    // asprintf(&msg, "\"todo\": 1");
+    // wmr_log_data(wmr, "uv", msg);
+    // free(msg);
 }
 
 void wmr_handle_wind(WMR *wmr, unsigned char *data, int len)
@@ -423,7 +419,7 @@ void wmr_handle_wind(WMR *wmr, unsigned char *data, int len)
 void wmr_handle_clock(WMR *wmr, unsigned char *data, int len)
 {
     int power, powered, battery, rf, level, mi, hr, dy, mo, yr;
-    char *msg;
+    // char *msg;
 
     power = data[0] >> 4;
     powered = power >> 3;
@@ -437,132 +433,76 @@ void wmr_handle_clock(WMR *wmr, unsigned char *data, int len)
     mo = data[7];
     yr = data[8] + 2000;
 
-    asprintf(&msg,
-             "\"at\": \"%04d%02d%02d%02d%02d\", "
-             "\"powered\": %d, "
-             "\"battery\": %d, "
-             "\"rf\": %d, "
-             "\"level\": %d, "
-             "\"source\": \"wmr100\", "
-             "\"origin\": \"wmr100\"",
-             yr, mo, dy, hr, mi, powered, battery, rf, level);
-    wmr_log_data(wmr, "clock", msg);
-    free(msg);
+    if(power) {
+        printf("=S0 pwr=%02x")
+    }
+    // asprintf(&msg,
+    //          "\"at\": \"%04d%02d%02d%02d%02d\", "
+    //          "\"powered\": %d, "
+    //          "\"battery\": %d, "
+    //          "\"rf\": %d, "
+    //          "\"level\": %d, "
+    //          "\"source\": \"wmr100\", "
+    //          "\"origin\": \"wmr100\"",
+    //          yr, mo, dy, hr, mi, powered, battery, rf, level);
+    // wmr_log_data(wmr, "clock", msg);
+    // free(msg);
 }
 
-/****************************
- Processing
- ****************************/
-
-void wmr_handle_packet(WMR *wmr, unsigned char *data, int len) 
-{
-
-    // dump_packet(data, len);
-    
-    switch(data[1]) {
-    case 0x41:
-        wmr_handle_rain(wmr, data, len);
-        break;
-    case 0x42:
-        wmr_handle_temp(wmr, data, len);
-        break;
-    case 0x44:
-        wmr_handle_water(wmr, data, len);
-        break;
-    case 0x46:
-        wmr_handle_pressure(wmr, data, len);
-        break;
-    case 0x47:
-        wmr_handle_uv(wmr, data, len);
-        break;
-    case 0x48:
-        wmr_handle_wind(wmr, data, len);
-        break;
-    case 0x60:
-        wmr_handle_clock(wmr, data, len);
-        break;
-    }    
-}
+unsigned char _buffer[20];
 
 void wmr_read_data(WMR *wmr) 
 {
-    int i, j, unk1, type, data_len;
-    unsigned char *data;
+    int i, data_len;
+    unsigned char b, type;
 
     /* search for 0xff marker */
-    i = wmr_read_byte(wmr);
-    while(i != 0xff) {
-        i = wmr_read_byte(wmr);
-    }
+    while((b = wmr_read_byte(wmr)) != 0xff) { }
 
     /* search for not 0xff */
-    i = wmr_read_byte(wmr);
-    while(i == 0xff) {
-        i = wmr_read_byte(wmr);
-    }
-    unk1 = i;
+    while((b = wmr_read_byte(wmr)) == 0xff) { }
 
-    /* read data type */
     type = wmr_read_byte(wmr);
-
-    /* read rest of data */
-    data_len = 0;
+    
+    data_len = 0;   // should be less than read_data_buffer.length
     switch(type) {
-    case 0x41:
-        data_len = 17;
-        break;
-    case 0x42:
-        data_len = 12;
-        break;
-    case 0x44:
-        data_len = 7;
-        break;
-    case 0x46:
-        data_len = 8;
-        break;
-    case 0x47:
-        data_len = 5;
-        break;
-    case 0x48:
-        data_len = 11;
-        break;
-    case 0x60:
-        data_len = 12;
-        break;
-    default:
-        printf("Unknown packet type: %02x, skipping\n", type);
+        case 0x41: data_len = 17; break;
+        case 0x42: data_len = 12; break;
+        case 0x44: data_len = 7;  break;
+        case 0x46: data_len = 8;  break;
+        case 0x47: data_len = 5;  break;
+        case 0x48: data_len = 11; break;
+        case 0x60: data_len = 12; break;
+        default: fprintf(stderr, "Unknown packet type: %02x\n", type);
     }
 
     if (data_len > 0) {
-        data = malloc(data_len);
-        data[0] = unk1;
-        data[1] = type;
-        for (j = 2; j < data_len; ++j) {
-            data[j] = wmr_read_byte(wmr);
-        }
+        _buffer[0] = b; // power
+        _buffer[1] = type;
+        for (i = 2; i < data_len; ++i) { _buffer[i] = wmr_read_byte(wmr); }
 
-        if (verify_checksum(data, data_len) == 0) {
-            wmr_handle_packet(wmr, data, data_len);
+        if (verify_checksum(read_data_buffer, data_len) == 0) {
+            switch(type) {
+                case 0x41: wmr_handle_rain(wmr, _buffer, len);     break;
+                case 0x42: wmr_handle_temp(wmr, _buffer, len);     break;
+                case 0x44: wmr_handle_water(wmr, _buffer, len);    break;
+                case 0x46: wmr_handle_pressure(wmr, _buffer, len); break;
+                case 0x47: wmr_handle_uv(wmr, _buffer, len);       break;
+                case 0x48: wmr_handle_wind(wmr, _buffer, len);     break;
+                case 0x60: wmr_handle_clock(wmr, _buffer, len);    break;
+            }    
         }
-
-        free(data);
     }
 
     wmr_send_packet_ready(wmr);
 }
 
-void wmr_process(WMR *wmr) {
-}
 
 void cleanup(int sig_num) 
 {
-    if (wmr != NULL) {
-        wmr_close(wmr);
-        wmr = NULL;
-    }
+    wmr_close(wmr);
     exit(0);
 }
-
 
 int main(int argc, char* argv[]) 
 {
@@ -575,15 +515,14 @@ int main(int argc, char* argv[])
         exit(1);
     }
 
-    int ret = wmr_init(wmr);
-    if (ret != 0) {
+    if( wmr_init(wmr) != 0) {
         perror("Failed to init USB device, exiting.");
         exit(1);
     }
 
     printf("Found on USB: %s\n", wmr->hid->id);
 
-    wmr_print_state(wmr);
+    fprintf(stderr, "WMR: HID: %p\n", (void *)wmr->hid);
 
     while(true) {
         wmr_read_data(wmr);
@@ -591,3 +530,5 @@ int main(int argc, char* argv[])
  
     return 0;
 }
+
+//.
