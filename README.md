@@ -73,9 +73,4 @@ Usage
 Run:
     ./wmr100
 
-This will dump data to data.log as well as stdout.q as stdout. You can then
-process periodically data.log with a script in python/perl/ruby/your language of
-choice, and frob with the data that way.
-
-Or publish to a zeromq socket:
-    ./wmr100 -z 'tcp://*:8790'
+This will dump data to stdout. Data lines begins with '*'.
