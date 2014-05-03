@@ -36,8 +36,8 @@
 #define MAXSENSORS 5
 #define RECORD_HISTORY 60
 
-int const RECV_PACKET_LEN   = 8;
-int const BUF_SIZE = 255;
+#define RECV_PACKET_LEN 8
+#define BUFF_SIZE 255
 
 unsigned char const PATHLEN = 2;
 int const PATH_IN[]  = { 0xff000001, 0xff000001 };
@@ -49,7 +49,7 @@ unsigned char const INIT_PACKET2[] = { 0x01, 0xd0, 0x08, 0x01, 0x00, 0x00, 0x00,
 typedef struct _WMR {
     int pos;
     int remain;
-    unsigned char buffer[BUF_SIZE];
+    unsigned char buffer[BUFF_SIZE];
     HIDInterface *hid;
 } WMR;
 
