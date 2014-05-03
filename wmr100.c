@@ -300,7 +300,7 @@ void wmr_read_data(WMR *wmr)
 
                 case 0x60: 
                     // clock
-                    printf("* rf=%d pwr=%d\n", (data[0] >> 6), ((data[0] >> 4) & 0x3));            
+                    printf("* rf=%d pwr=%d\n", ((data[0] >> 4) & 0x3), (data[0] >> 6));            
                     break;
             }    
         }
