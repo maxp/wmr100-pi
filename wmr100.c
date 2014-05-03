@@ -306,22 +306,22 @@ void wmr_handle_rain(WMR *wmr, unsigned char *data, int len)
 
 void wmr_handle_temp(WMR *wmr, unsigned char *data, int len)
 {
-    // int sensor, humidity; // st, smiley, trend,
-    // float temp, dewpoint;
+    int sensor, humidity; // st, smiley, trend,
+    float temp, dewpoint;
     // // char *msg;
 
-    int sensor = data[2] & 0x0f;
+    sensor = data[2] & 0x0f;
     // st = data[2] >> 4;
     // smiley = st >> 2;
     // trend = st & 0x03;
     // trend -= 1;
 
-    float temp = (data[3] + ((data[4] & 0x0f) << 8)) / 10.0;
+    temp = (data[3] + ((data[4] & 0x0f) << 8)) / 10.0;
     if ((data[4] >> 4) == 0x8) { temp = -temp; }
     
-    int humidity = data[5];
+    humidity = data[5];
 
-    float dewpoint = (data[6] + ((data[7] & 0x0f) << 8)) / 10.0;
+    dewpoint = (data[6] + ((data[7] & 0x0f) << 8)) / 10.0;
     if ((data[7] >> 4) == 0x8) { dewpoint = -dewpoint; }
 
     printf("=S%d t=%.1f h=%d d=%.1f", sensor, temp, humidity, dewpoint)
