@@ -501,6 +501,8 @@ void wmr_read_data(WMR *wmr)
 }
 
 
+WMR* wmr = NULL;
+
 void cleanup(int sig_num) 
 {
     wmr_close(wmr);
@@ -512,7 +514,7 @@ int main(int argc, char* argv[])
     signal(SIGINT, cleanup);
     signal(SIGTERM, cleanup);
 
-    WMR* wmr = malloc(sizeof(WMR));
+    wmr = malloc(sizeof(WMR));
     wmr->remain = 0;
 
     if( wmr_init(wmr) != 0) {
