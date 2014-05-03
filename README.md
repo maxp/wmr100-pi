@@ -1,5 +1,5 @@
 
-### Completely refactored by m@penzin.ru
+### Completely refactored by @maxp
 
 Verbose messages removed, some errors fixed.
 
