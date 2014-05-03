@@ -237,6 +237,8 @@ void wmr_read_data(WMR *wmr)
     int i, data_len;
     unsigned char b, type;
 
+    unsigned char* data;
+
     /* search for 0xff marker */
     while((b = wmr_read_byte(wmr)) != 0xff) { }
 
@@ -264,7 +266,7 @@ void wmr_read_data(WMR *wmr)
 
         if (verify_checksum(_buffer, data_len) == 0) 
         {
-            unsinged char* data = _buffer;
+            data = _buffer;
             switch(type) 
             {
                 case 0x41: 
