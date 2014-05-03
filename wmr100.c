@@ -264,6 +264,7 @@ void wmr_read_data(WMR *wmr)
 
         if (verify_checksum(_buffer, data_len) == 0) 
         {
+            unsinged char* data = _buffer;
             switch(type) 
             {
                 case 0x41: 
@@ -271,7 +272,7 @@ void wmr_read_data(WMR *wmr)
                     break;
 
                 case 0x42: 
-                    print_temp(_buffer);     
+                    print_temp(data);     
                     break;
 
                 // case 0x44: break; ?water
@@ -297,7 +298,7 @@ void wmr_read_data(WMR *wmr)
 
                 case 0x60: 
                     // clock
-                    printf("* pwr=%d rf=%d\n", data[0] >> 6, (data[0] >> 4) & 0x3);            
+                    printf("* pwr=%d rf=%d\n", (data[0] >> 6), ((data[0] >> 4) & 0x3));            
                     break;
             }    
         }
