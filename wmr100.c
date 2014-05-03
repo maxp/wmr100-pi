@@ -18,17 +18,17 @@
  */
 
 /*
-    refactored by m@penzin.ru
+    completely refactored by m@penzin.ru
 */
 
 #include <hid.h>
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
-#include <time.h>
+/* #include <time.h> */
 #include <unistd.h>
 #include <ctype.h>
-#include <sys/time.h>
+/* #include <sys/time.h> */
 
 #define WMR100_VENDOR_ID  0x0fde
 #define WMR100_PRODUCT_ID 0xca01
@@ -51,10 +51,6 @@ typedef struct _WMR {
     int remain;
     unsigned char* buffer;
     HIDInterface *hid;
-    // FILE *data_fh;
-    // char *data_filename;
-    // void *zmq_ctx;
-    // void *zmq_sock;
 } WMR;
 
 WMR *wmr = NULL;
@@ -223,7 +219,7 @@ int verify_checksum(unsigned char * buf, int len)
     chk = buf[len-2] + (buf[len-1] << 8);
 
     if (ret != chk) {
-        printf("Bad checksum: %d / calc: %d\n", ret, chk);
+        fprintf(stderr, "Bad checksum: %d / calc: %d\n", ret, chk);
         return -1;
     }
     return 0;
@@ -316,7 +312,7 @@ void wmr_handle_temp(WMR *wmr, unsigned char *data, int len)
     dewpoint = (data[6] + ((data[7] & 0x0f) << 8)) / 10.0;
     if ((data[7] >> 4) == 0x8) { dewpoint = -dewpoint; }
 
-    printf("=S%d t=%.1f h=%d d=%.1f", sensor, temp, humidity, dewpoint);
+    printf("=S%d t=%.1f h=%d d=%.1f\n", sensor, temp, humidity, dewpoint);
 
     // asprintf(&msg,
     //          "\"sensor\": %d, "
@@ -356,14 +352,18 @@ void wmr_handle_water(WMR *wmr, unsigned char *data, int len)
 
 void wmr_handle_pressure(WMR *wmr, unsigned char *data, int len)
 {
+    printf("=S0 p=%d\n", data[2] + ((data[3] & 0x0f) << 8));
+
+    /*
     int pressure, forecast, alt_pressure, alt_forecast;
     char *msg;
 
     pressure = data[2] + ((data[3] & 0x0f) << 8);
+    
     forecast = data[3] >> 4;
     alt_pressure = data[4] + ((data[5] & 0x0f) << 8);
     alt_forecast = data[5] >> 4;
-
+    
     asprintf(&msg,
              "\"pressure\": %d, "
              "\"forecast\": %d, "
@@ -374,6 +374,7 @@ void wmr_handle_pressure(WMR *wmr, unsigned char *data, int len)
              pressure, forecast, alt_pressure, alt_forecast);
     wmr_log_data(wmr, "pressure", msg);
     free(msg);
+    */
 }
 
 void wmr_handle_uv(WMR *wmr, unsigned char *data, int len)
