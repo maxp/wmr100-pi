@@ -252,7 +252,7 @@ void wmr_log_data(WMR *wmr, char *topic, char *msg)
         "\"timestamp\": \"%s.%06d\", "
         "%s}",
         topic,
-        timestamp,
+        // timestamp,
         (int)tv.tv_usec,
         msg);
 
