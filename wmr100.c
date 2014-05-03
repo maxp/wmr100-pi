@@ -518,8 +518,9 @@ void wmr_handle_clock(WMR *wmr, unsigned char *data, int len)
 
 void wmr_handle_packet(WMR *wmr, unsigned char *data, int len) 
 {
-    if (gOutputStdout)
-        dump_packet(data, len);
+    //if (gOutputStdout)
+    
+    dump_packet(data, len);
     
     switch(data[1]) {
     case 0x41:
