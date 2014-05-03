@@ -421,7 +421,7 @@ void wmr_handle_clock(WMR *wmr, unsigned char *data, int len)
     if(data[0]) {
         printf("=S0 pwr=%02x", data[0])
     }
-    
+
     // int power, powered, battery, rf, level, mi, hr, dy, mo, yr;
     // char *msg;
 
@@ -482,15 +482,15 @@ void wmr_read_data(WMR *wmr)
         _buffer[1] = type;
         for (i = 2; i < data_len; ++i) { _buffer[i] = wmr_read_byte(wmr); }
 
-        if (verify_checksum(read_data_buffer, data_len) == 0) {
+        if (verify_checksum(_buffer, data_len) == 0) {
             switch(type) {
-                case 0x41: wmr_handle_rain(wmr, _buffer, len);     break;
-                case 0x42: wmr_handle_temp(wmr, _buffer, len);     break;
-                case 0x44: wmr_handle_water(wmr, _buffer, len);    break;
-                case 0x46: wmr_handle_pressure(wmr, _buffer, len); break;
-                case 0x47: wmr_handle_uv(wmr, _buffer, len);       break;
-                case 0x48: wmr_handle_wind(wmr, _buffer, len);     break;
-                case 0x60: wmr_handle_clock(wmr, _buffer, len);    break;
+                case 0x41: wmr_handle_rain(wmr, _buffer, data_len);     break;
+                case 0x42: wmr_handle_temp(wmr, _buffer, data_len);     break;
+                case 0x44: wmr_handle_water(wmr, _buffer, data_len);    break;
+                case 0x46: wmr_handle_pressure(wmr, _buffer, data_len); break;
+                case 0x47: wmr_handle_uv(wmr, _buffer, data_len);       break;
+                case 0x48: wmr_handle_wind(wmr, _buffer, data_len);     break;
+                case 0x60: wmr_handle_clock(wmr, _buffer, data_len);    break;
             }    
         }
     }
