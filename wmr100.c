@@ -363,7 +363,7 @@ void wmr_handle_pressure(WMR *wmr, unsigned char *data, int len)
     forecast = data[3] >> 4;
     alt_pressure = data[4] + ((data[5] & 0x0f) << 8);
     alt_forecast = data[5] >> 4;
-    
+
     asprintf(&msg,
              "\"pressure\": %d, "
              "\"forecast\": %d, "
@@ -390,6 +390,16 @@ void wmr_handle_uv(WMR *wmr, unsigned char *data, int len)
 
 void wmr_handle_wind(WMR *wmr, unsigned char *data, int len)
 {
+    printf(
+        "* w=%.1f l=%.1f g=%.1f b=%d pwr=%d\n", 
+        data[4] / 10.0, // wind speed
+        data[5] >> 4,   // low speed
+        data[6] << 4,   // high speed
+        data[2] & 0xf,  // dir
+        data[2] >> 4    // pwr
+    );
+
+/*
     char *msg;
     int wind_dir, power, low_speed, high_speed;
     float wind_speed, avg_speed;
@@ -413,12 +423,13 @@ void wmr_handle_wind(WMR *wmr, unsigned char *data, int len)
              power, wind_dir, wind_speed, avg_speed);
     wmr_log_data(wmr, "wind", msg);
     free(msg);
+*/    
 }
 
 void wmr_handle_clock(WMR *wmr, unsigned char *data, int len)
 {
     if(data[0]) {
-        printf("=S0 pwr=%02x", data[0]);
+        printf("=S0 pwr=%02x\n", data[0]);
     }
 
     // int power, powered, battery, rf, level, mi, hr, dy, mo, yr;
