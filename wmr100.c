@@ -224,7 +224,7 @@ void print_temp(unsigned char *data)
     dewpoint = (data[6] + ((data[7] & 0x0f) << 8)) / 10.0;
     if(data[7] & 0x80) { dewpoint = -dewpoint; }
 
-    printf("* s=%d t=%.1f h=%d d=%.1f pwr=%d\n", 
+    printf("* sn=%d t=%.1f h=%d d=%.1f pwr=%d\n", 
         data[2] & 0x0f, temp, data[5], dewpoint, data[0] >> 6
     );
 }
@@ -300,7 +300,7 @@ void wmr_read_data(WMR *wmr)
 
                 case 0x60: 
                     // clock
-                    printf("* pwr=%d rf=%d\n", (data[0] >> 6), ((data[0] >> 4) & 0x3));            
+                    printf("* rf=%d pwr=%d\n", (data[0] >> 6), ((data[0] >> 4) & 0x3));            
                     break;
             }    
         }
