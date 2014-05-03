@@ -329,6 +329,7 @@ void wmr_handle_temp(WMR *wmr, unsigned char *data, int len)
 
 void wmr_handle_water(WMR *wmr, unsigned char *data, int len)
 {
+    /*
     int sensor;
     float temp;
     char *msg;
@@ -347,6 +348,7 @@ void wmr_handle_water(WMR *wmr, unsigned char *data, int len)
              sensor, temp);
     wmr_log_data(wmr, "water", msg);
     free(msg);
+    */
 }
 
 void wmr_handle_pressure(WMR *wmr, unsigned char *data, int len)
