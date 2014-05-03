@@ -17,6 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+    refactored by m@penzin.ru
+*/
+
 #include <hid.h>
 #include <stdio.h>
 #include <string.h>
@@ -24,43 +28,23 @@
 #include <time.h>
 #include <unistd.h>
 #include <ctype.h>
-// #include <zmq.h>
 #include <sys/time.h>
-#include <assert.h>
 
 #define WMR100_VENDOR_ID  0x0fde
 #define WMR100_PRODUCT_ID 0xca01
-
-/****************************
- Variables definition
-****************************/
-
-/* Logging output */
-
-// bool gOutputStdout = false;
-// bool gOutputFile = false;
-// char *gOutputZmq = NULL;
-
-/* Constants */
 
 #define MAXSENSORS 5
 #define RECORD_HISTORY 60
 
 int const RECV_PACKET_LEN   = 8;
 int const BUF_SIZE = 255;
+
 unsigned char const PATHLEN = 2;
 int const PATH_IN[]  = { 0xff000001, 0xff000001 };
 int const PATH_OUT[] = { 0xff000001, 0xff000002 };
+
 unsigned char const INIT_PACKET1[] = { 0x20, 0x00, 0x08, 0x01, 0x00, 0x00, 0x00, 0x00 };
 unsigned char const INIT_PACKET2[] = { 0x01, 0xd0, 0x08, 0x01, 0x00, 0x00, 0x00, 0x00 };
-
-char *const SMILIES[] = { "  ", ":D", ":(", ":|" };
-char *const TRENDS[] = { "0", "1", "-1" };
-// char *const WINDIES[] = { 
-//     "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NWN" 
-// };
-
-/* WMR */
 
 typedef struct _WMR {
     int pos;
@@ -75,9 +59,6 @@ typedef struct _WMR {
 
 WMR *wmr = NULL;
 
-/****************************
- Dump packet
- ****************************/
 
 void dump_packet(unsigned char *packet, int len)
 {
@@ -90,9 +71,6 @@ void dump_packet(unsigned char *packet, int len)
     printf("\n");
 }
 
-/****************************
-  WMR methods
- ****************************/
 
 WMR *wmr_new()
 {
@@ -103,8 +81,6 @@ WMR *wmr_new()
       free(wmr);
       return NULL;
     }
-    // wmr->data_fh = NULL;
-    // wmr->data_filename = "./data.log";
     return wmr;
 }
 
@@ -259,52 +235,18 @@ int verify_checksum(unsigned char * buf, int len)
     return 0;
 }
 
-// void wmr_output_file(WMR *wmr, char *msg) {
-//     FILE * out = wmr->data_fh;
 
-//     /* check for rolled log or not open */
-//     if (!access(wmr->data_filename, F_OK) == 0 || wmr->data_fh == NULL) {
-//         if (wmr->data_fh != NULL)
-//             fclose(wmr->data_fh);
-//         out = wmr->data_fh = fopen(wmr->data_filename, "a+");
-//         if (wmr->data_fh == NULL) {
-//             fprintf(stderr, "ERROR: Couldn't open data log - writing to stderr\n");
-//             out = stderr;
-//         }
-//     }
-
-//     fprintf(out, "%s\n", msg);
-//     fflush(out);
-// }
-
-// void wmr_output_stdout(WMR *wmr, char *msg) {
-//     printf("%s\n", msg);
-//     fflush(stdout);
-// }
-
-// void wmr_output_zmq(WMR *wmr, char *topic, char *msg) {
-//     int len = strlen(topic) + 1 + strlen(msg);
-//     void *buf = malloc(len);
-//     char *data = (char *)buf;
-
-//      message format is: topic\0json, for pubsub subscription matching 
-//     strcpy(data, topic);
-//     data += strlen(topic) + 1;
-//     memcpy(data, msg, strlen(msg));
-//     zmq_send(wmr->zmq_sock, buf, len, 0);
-//     free(buf);
-// }
-
-void wmr_log_data(WMR *wmr, char *topic, char *msg) {
-    char timestamp[200];
+void wmr_log_data(WMR *wmr, char *topic, char *msg) 
+{
+    // char timestamp[200];
     char *buf;
-    struct tm *tmp;
-    struct timeval tv;
+    // struct tm *tmp;
+    // struct timeval tv;
 
-    gettimeofday(&tv, NULL);
-    tmp = gmtime(&tv.tv_sec);
+    // gettimeofday(&tv, NULL);
+    // tmp = gmtime(&tv.tv_sec);
 
-    strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", tmp);
+    // strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", tmp);
     asprintf(&buf,
         "{\"topic\": \"%s\", "
         "\"timestamp\": \"%s.%06d\", "
@@ -313,16 +255,6 @@ void wmr_log_data(WMR *wmr, char *topic, char *msg) {
         timestamp,
         (int)tv.tv_usec,
         msg);
-
-    // if (gOutputFile) {
-    //     wmr_output_file(wmr, buf);
-    // }
-    // if (gOutputStdout) {
-    //     wmr_output_stdout(wmr, buf);
-    // }
-    // if (gOutputZmq) {
-    //     wmr_output_zmq(wmr, topic, buf);
-    // }
 
     printf("%s\n", buf);
     free(buf);
@@ -334,6 +266,10 @@ void wmr_log_data(WMR *wmr, char *topic, char *msg) {
 
 void wmr_handle_rain(WMR *wmr, unsigned char *data, int len) 
 {
+    // NOTE: function disabled
+    return; 
+    //
+
     int sensor, power, rate;
     float hour, day, total;
     int smi, sho, sda, smo, syr;
@@ -370,36 +306,38 @@ void wmr_handle_rain(WMR *wmr, unsigned char *data, int len)
 
 void wmr_handle_temp(WMR *wmr, unsigned char *data, int len)
 {
-    int sensor, st, smiley, trend, humidity;
-    float temp, dewpoint;
-    char *msg;
+    // int sensor, humidity; // st, smiley, trend,
+    // float temp, dewpoint;
+    // // char *msg;
 
-    sensor = data[2] & 0x0f;
-    st = data[2] >> 4;
-    smiley = st >> 2;
-    trend = st & 0x03;
-    trend -= 1;
+    int sensor = data[2] & 0x0f;
+    // st = data[2] >> 4;
+    // smiley = st >> 2;
+    // trend = st & 0x03;
+    // trend -= 1;
 
-    temp = (data[3] + ((data[4] & 0x0f) << 8)) / 10.0;
-    if ((data[4] >> 4) == 0x8) temp = -temp;
+    float temp = (data[3] + ((data[4] & 0x0f) << 8)) / 10.0;
+    if ((data[4] >> 4) == 0x8) { temp = -temp; }
     
-    humidity = data[5];
+    int humidity = data[5];
 
-    dewpoint = (data[6] + ((data[7] & 0x0f) << 8)) / 10.0;
-    if ((data[7] >> 4) == 0x8) dewpoint = -dewpoint;
+    float dewpoint = (data[6] + ((data[7] & 0x0f) << 8)) / 10.0;
+    if ((data[7] >> 4) == 0x8) { dewpoint = -dewpoint; }
 
-    asprintf(&msg,
-             "\"sensor\": %d, "
-             "\"smile\": %d, "
-             "\"trend\": %d, "
-             "\"temp\": %.1f, "
-             "\"humidity\": %d, "
-             "\"dewpoint\": %.1f, "
-             "\"source\": \"wmr100.%d\", "
-             "\"origin\": \"wmr100\"",
-             sensor, smiley, trend, temp, humidity, dewpoint, sensor);
-    wmr_log_data(wmr, "temp", msg);
-    free(msg);
+    printf("=S%d t=%.1f h=%d d=%.1f", sensor, temp, humidity, dewpoint)
+
+    // asprintf(&msg,
+    //          "\"sensor\": %d, "
+    //          "\"smile\": %d, "
+    //          "\"trend\": %d, "
+    //          "\"temp\": %.1f, "
+    //          "\"humidity\": %d, "
+    //          "\"dewpoint\": %.1f, "
+    //          "\"source\": \"wmr100.%d\", "
+    //          "\"origin\": \"wmr100\"",
+    //          sensor, smiley, trend, temp, humidity, dewpoint, sensor);
+    // wmr_log_data(wmr, "temp", msg);
+    // free(msg);
 }
 
 void wmr_handle_water(WMR *wmr, unsigned char *data, int len)
@@ -518,9 +456,8 @@ void wmr_handle_clock(WMR *wmr, unsigned char *data, int len)
 
 void wmr_handle_packet(WMR *wmr, unsigned char *data, int len) 
 {
-    //if (gOutputStdout)
-    
-    dump_packet(data, len);
+
+    // dump_packet(data, len);
     
     switch(data[1]) {
     case 0x41:
@@ -611,118 +548,46 @@ void wmr_read_data(WMR *wmr)
         free(data);
     }
 
-    /* send ack */
     wmr_send_packet_ready(wmr);
 }
 
 void wmr_process(WMR *wmr) {
-    while(true) {
-        wmr_read_data(wmr);
-    }
 }
 
-void cleanup(int sig_num) {
-    printf("Caught signal, cleaning up\n");
-
-    // if (gOutputZmq) {
-    //     zmq_close(wmr->zmq_sock);
-    //     zmq_term(wmr->zmq_ctx);
-    // }
-    
+void cleanup(int sig_num) 
+{
     if (wmr != NULL) {
         wmr_close(wmr);
         wmr = NULL;
     }
-
     exit(0);
 }
 
-/****************************
- Main
- ****************************/
 
-// int init_output_zmq(WMR *wmr) {
-//     wmr->zmq_ctx = zmq_init(1);
-//     assert(wmr->zmq_ctx != NULL);
-//     wmr->zmq_sock = zmq_socket(wmr->zmq_ctx, ZMQ_PUB);
-//     assert(wmr->zmq_sock != NULL);
-//     assert(gOutputZmq);
-//     zmq_connect(wmr->zmq_sock, gOutputZmq);
-
-//     return 0;
-// }
-
-int main(int argc, char* argv[]) {
-    int ret;
-    int c;
-
+int main(int argc, char* argv[]) 
+{
     signal(SIGINT, cleanup);
     signal(SIGTERM, cleanup);
 
-    // /* Parse the command line parameters */
-    // while ((c = getopt(argc, argv, "hsfdz:")) != -1)
-    // {
-    //     switch (c)
-    //     {
-    //     case 'h':
-    //         fprintf(stderr, "Options:\n"
-    //             "\t-s: output to sdtout only\n"
-    //             "\t-f: output to file only\n"
-    //             "\t-z endpoint (eg. tcp://*:8790): output to zmq endpoint\n");
-    //         return 1;
-    //     case 's': 
-    //         gOutputStdout = true;
-    //         break;
-    //     case 'f':
-    //         gOutputFile = true;
-    //         break;
-    //     case 'z':
-    //         gOutputZmq = optarg; /* zeromq endpoint */
-    //         break;
-    //     case '?':
-    //         if (isprint(optopt))
-    //             fprintf(stderr, "Unknown option `-%c'.\n", optopt);
-    //         return 1;
-    //     default:
-    //         abort();
-    //     }
-    // }
-
-    // if (!(gOutputStdout || gOutputFile || gOutputZmq)) {
-    //     /* set default outputs */
-    //     gOutputStdout = true;
-    //     gOutputFile = true;        
-    // }
-
-    /* Initialize WMR */
     wmr = wmr_new();
     if (wmr == NULL) {
         perror("wmr_new failed");
         exit(1);
     }
 
-    // fprintf(stderr, "Writing data to:\n");
-    // if (gOutputStdout)
-    //     fprintf(stderr, "- Stdout\n");
-    // if (gOutputFile)
-    //     fprintf(stderr, "- File\n");
-    // if (gOutputZmq) {
-    //     fprintf(stderr, "- Zmq\n");
-    //     init_output_zmq(wmr);
-    // }
-
-    printf("Opening WMR100...\n");
-    ret = wmr_init(wmr);
+    int ret = wmr_init(wmr);
     if (ret != 0) {
         perror("Failed to init USB device, exiting.");
         exit(1);
     }
 
     printf("Found on USB: %s\n", wmr->hid->id);
+
     wmr_print_state(wmr);
-    wmr_process(wmr);
-    wmr_close(wmr);
-    printf("Closed WMR100\n");
-  
+
+    while(true) {
+        wmr_read_data(wmr);
+    }
+ 
     return 0;
 }
