@@ -1,3 +1,9 @@
+
+### Completely refactored by m@penzin.ru
+
+Verbose messages removed, some errors fixed.
+
+
 Oregon Scientific WMR100 client for Linux/BSD/etc.
 ==================================================
 
