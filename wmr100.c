@@ -390,14 +390,7 @@ void wmr_handle_uv(WMR *wmr, unsigned char *data, int len)
 
 void wmr_handle_wind(WMR *wmr, unsigned char *data, int len)
 {
-    printf(
-        "* w=%.1f l=%.1f g=%.1f b=%d pwr=%d\n", 
-        data[4] / 10.0, // wind speed
-        data[5] >> 4,   // low speed
-        data[6] << 4,   // high speed
-        data[2] & 0xf,  // dir
-        data[2] >> 4    // pwr
-    );
+    printf("* w=%.1f b=%d pwr=%02x\n", data[4] / 10.0, data[2] & 0xf, data[2] >> 4);
 
 /*
     char *msg;
@@ -429,7 +422,7 @@ void wmr_handle_wind(WMR *wmr, unsigned char *data, int len)
 void wmr_handle_clock(WMR *wmr, unsigned char *data, int len)
 {
     if(data[0]) {
-        printf("=S0 pwr=%02x\n", data[0]);
+        printf("=S0 pwr=%02x\n", data[0] >> 4);
     }
 
     // int power, powered, battery, rf, level, mi, hr, dy, mo, yr;
@@ -532,8 +525,7 @@ int main(int argc, char* argv[])
     }
 
     printf("Found on USB: %s\n", wmr->hid->id);
-
-    fprintf(stderr, "WMR: HID: %p\n", (void *)wmr->hid);
+    printf("WMR: HID: %p\n", (void *)wmr->hid);
 
     while(true) {
         wmr_read_data(wmr);
