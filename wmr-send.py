@@ -30,7 +30,7 @@ def get_hwid():
 
 
 def sender(data):
-    while True:
+    while run_sender:
         # psw="secret"
         # url='http://example.com/dat?'
         # wget='wget -q -O - '
@@ -44,8 +44,12 @@ def sender(data):
 
         print("***** send:", data)
         data.clear()
-        
-        time.sleep(SEND_INTERVAL)
+
+        i = 0
+        while i < SEND_INTERVAL:
+            i++
+            time.sleep(1)    
+        #
     #
 #--
 
@@ -77,6 +81,7 @@ RH_NUM = 16
 cycle = 0
 data = {}
 
+run_sender = True
 ct = Thread(target=sender, args=(data,))
 ct.start()
 
@@ -119,5 +124,7 @@ while True:
     except Exception as e:
         perr("error: "+str(e))
 #-
+
+run_sender = False
 
 #.
