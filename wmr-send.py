@@ -69,7 +69,7 @@ def update_data(data, k, v):
 hwid  = os.environ.get("HWID") or get_hwid()
 psw   = os.environ.get("PSW")  
 
-SEND_INTERVAL = 300
+SEND_INTERVAL = 40
 RH_NUM = 16
 
 # global data
