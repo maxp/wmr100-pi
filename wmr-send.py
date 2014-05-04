@@ -29,7 +29,7 @@ def get_hwid():
 #--
 
 
-def collector(data):
+def sender(data):
     """ collects data from stdin, updates data dict: min, max, total, count """
 
     print("started")
@@ -58,13 +58,9 @@ data = {}
 # ct = Thread(target=collector, args=(data,))
 # ct.start()
 
-while True:
-
-    b = sys.stdin.read(1)
-    print(b)
-    
-    # if s[0] == '*':
-    #     print(s[1:])
+for s in sys.stdin:
+    if s[0] == '*':
+        print(s[1:])
 
     # cycle += 1
     # print("cycle:", cycle)
