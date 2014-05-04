@@ -2,14 +2,17 @@
 
 #   read wmr100-pi data from stdin and send it to rs.angara.net
 
-#   "link/ether b8:27:eb:9e:1c:c9 "
+#   on.environ {HWID,PSW}
+
 
 from __future__ import print_function
 
-
+import time
+from threading import Thread
 import subprocess
 import sys
 import re
+import os
 
 
 def perr(msg):
@@ -26,5 +29,51 @@ def get_hwid():
 #--
 
 
-print( get_hwid() )
+def collector(data):
+    """ collects data from stdin, updates data dict: min, max, total, count """
+    s = sys.stdin.readline()
+    while s:
+        if s[0] == '*':
+            print(s.substring(1))
 
+
+        #-
+        s = sys.stdin.readline()
+    #-
+#--
+
+
+# main
+
+cycle = 0
+hwid  = os.environ.get("HWID") or get_hwid()
+psw   = os.environ.get("PSW")  
+
+data = {}
+
+ct = Thread(target=collector, args=(data,))
+
+while True:
+    cycle += 1
+
+    if cycle > 2: break
+    time.sleep(10)
+
+#-
+
+#.
+
+
+
+
+
+# psw="secret"
+# url='http://example.com/dat?'
+# wget='wget -q -O - '
+# cycle_file='/tmp/cycle'    
+
+
+
+#   qs="hwid=${hwid}&cycle=${cycle}&t=${val}"
+#   hk = sha1sum(qs+psw)
+#   qs="${qs}&_hkey=${hk}"
