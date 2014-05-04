@@ -33,7 +33,7 @@ def collector(data):
     """ collects data from stdin, updates data dict: min, max, total, count """
 
     print("started")
-    
+
     s = sys.stdin.readline()
     while s:
         print("s:", s)
@@ -55,15 +55,19 @@ psw   = os.environ.get("PSW")
 
 data = {}
 
-ct = Thread(target=collector, args=(data,))
-ct.start()
+# ct = Thread(target=collector, args=(data,))
+# ct.start()
 
-while True:
-    cycle += 1
-    print("cycle:", cycle)
+for s in sys.stdin:
+    print("s:", s)
+    # if s[0] == '*':
+    #     print(s[1:])
 
-    if cycle > 20: break
-    time.sleep(1)
+    # cycle += 1
+    # print("cycle:", cycle)
+
+    # if cycle >= 20: break
+    # time.sleep(1)
 
 #-
 
