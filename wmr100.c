@@ -303,7 +303,6 @@ void wmr_read_data(WMR *wmr)
                     break;
             }    
         }
-        fflush(stdout);
     }
 
     wmr_send_packet_ready(wmr);
@@ -332,6 +331,7 @@ int main(int argc, char* argv[])
     }
 
     while(true) {
+        fflush(stdout);
         wmr_read_data(wmr);
     }
 }
