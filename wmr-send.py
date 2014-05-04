@@ -41,7 +41,8 @@ def sender(data):
     #   hk = sha1sum(qs+psw)
     #   qs="${qs}&_hkey=${hk}"
 
-    print("send")
+    print("send:", data)
+    time.sleep(SEND_INTERVAL)
 #--
 
 
@@ -63,8 +64,8 @@ def update_data(data, k, v):
 
 hwid  = os.environ.get("HWID") or get_hwid()
 psw   = os.environ.get("PSW")  
-send_interval = 240
 
+SEND_INTERVAL = 300
 RH_NUM = 16
 
 # global data
@@ -72,8 +73,8 @@ RH_NUM = 16
 cycle = 0
 data = {}
 
-# ct = Thread(target=sender, args=(data,))
-# ct.start()
+ct = Thread(target=sender, args=(data,))
+ct.start()
 
 while True:
     try:
