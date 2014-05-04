@@ -65,7 +65,7 @@ hwid  = os.environ.get("HWID") or get_hwid()
 psw   = os.environ.get("PSW")  
 send_interval = 240
 
-RH_MAX = 20
+RH_NUM = 16
 
 # global data
 
@@ -91,13 +91,12 @@ while True:
                 elif k == 'pwr':
                     if v != '0': pwr = v
                 elif k == 'r':
-                    rhs = data.get('rhs')
-                    if rhs:
-                        if len(rhs) >= RH_MAX: rhs.pop(0)
-                        rhs.append(int(v))
-                    else:
-                        data['rhs'] = [int(v),]
-                    #
+                    rhc = data.get('rhc')
+                    if not rhc:
+                        rhc = [0 for j in range(RH_NUM)]
+                        data['rhc'] = rhc
+                    #-
+                    rhc[int(v)] += 1
                 elif k in 'pw': 
                     update_data(data, k, v)
                 elif k in 'thd':
