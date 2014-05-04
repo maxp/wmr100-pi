@@ -42,7 +42,10 @@ def sender(data):
         #   hk = sha1sum(qs+psw)
         #   qs="${qs}&_hkey=${hk}"
 
+        print()
         print("***** send:", data)
+        print()
+
         data.clear()
 
         time.sleep(SEND_INTERVAL)    
@@ -69,7 +72,7 @@ def update_data(data, k, v):
 hwid  = os.environ.get("HWID") or get_hwid()
 psw   = os.environ.get("PSW")  
 
-SEND_INTERVAL = 40
+SEND_INTERVAL = 140
 RH_NUM = 16
 
 # global data
@@ -117,6 +120,7 @@ while True:
             print(data)
         #
     except KeyboardInterrupt:
+        perr("SIGTERM")
         sys.exit(0)
     except Exception as e:
         perr("error: "+str(e))
