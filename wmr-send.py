@@ -49,16 +49,14 @@ def update_data(data, k, v):
     v = float(v)
     d = data.get(k)
     if d:
-        if v < d['min']:
-            d['min'] = v
-        if v > d['max']
-            d['max'] = v
+        if v < d['min']: d['min'] = v
+        if v > d['max']: d['max'] = v
         d['sum'] += v
         d['count'] += 1
     else:
         data[k] = {'min':v, 'max':v, 'sum':v, 'count':1}
     #
-    
+
     print("data:", k, data[k])
 #--
 
