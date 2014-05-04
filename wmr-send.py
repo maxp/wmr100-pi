@@ -33,8 +33,9 @@ def collector(data):
     """ collects data from stdin, updates data dict: min, max, total, count """
     s = sys.stdin.readline()
     while s:
+        print("s:", s)
         if s[0] == '*':
-            print(s.substring(1))
+            print(s[1:])
 
 
         #-
@@ -56,9 +57,10 @@ ct.start()
 
 while True:
     cycle += 1
+    print("cycle:", cycle)
 
-    if cycle > 2: break
-    time.sleep(10)
+    if cycle > 20: break
+    time.sleep(1)
 
 #-
 
