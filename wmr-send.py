@@ -84,9 +84,6 @@ while True:
             rf = ''
             for i in s[1:].split():
                 [k,v] = i.split('=')
-
-                print('k,v:', k, v)
-
                 if k == 'sn':
                     sn = v
                 elif k == 'rf':
