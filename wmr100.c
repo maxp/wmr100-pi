@@ -303,6 +303,7 @@ void wmr_read_data(WMR *wmr)
                     break;
             }    
         }
+        fflush(stdout);
     }
 
     wmr_send_packet_ready(wmr);
