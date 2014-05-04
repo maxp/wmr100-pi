@@ -58,7 +58,8 @@ data = {}
 # ct = Thread(target=collector, args=(data,))
 # ct.start()
 
-for s in sys.stdin:
+while True:
+    s = sys.stdin.readline()
     if s[0] == '*':
         print(s[1:])
 
