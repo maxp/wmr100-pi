@@ -30,60 +30,78 @@ def get_hwid():
 
 
 def sender(data):
-    """ collects data from stdin, updates data dict: min, max, total, count """
-
-    print("started")
-
-    s = sys.stdin.readline()
-    while s:
-        print("s:", s)
-        if s[0] == '*':
-            print(s[1:])
+    # psw="secret"
+    # url='http://example.com/dat?'
+    # wget='wget -q -O - '
+    # cycle_file='/tmp/cycle'    
 
 
-        #-
-        s = sys.stdin.readline()
-    #-
+
+    #   qs="hwid=${hwid}&cycle=${cycle}&t=${val}"
+    #   hk = sha1sum(qs+psw)
+    #   qs="${qs}&_hkey=${hk}"
+
+    print("send")
 #--
 
 
-# main
+def update_data(data, k, v):
+    v = float(v)
+    d = data.get(k)
+    if d:
+        if v < d['min']:
+            d['min'] = v
+        if v > d['max']
+            d['max'] = v
+        d['sum'] += v
+        d['count'] += 1
+    else:
+        data[k] = {'min':v, 'max':v, 'sum':v, 'count':1}
+    #
+    
+    print("data:", k, data[k])
+#--
 
-cycle = 0
+
+# constants
+
 hwid  = os.environ.get("HWID") or get_hwid()
 psw   = os.environ.get("PSW")  
+send_interval = 240
 
+# global data
+
+cycle = 0
 data = {}
 
-# ct = Thread(target=collector, args=(data,))
+# ct = Thread(target=sender, args=(data,))
 # ct.start()
 
 while True:
-    s = sys.stdin.readline()
-    if s[0] == '*':
-        print(s[1:])
+    try:
+        s = sys.stdin.readline()
+        if s[0] == '*':
+            sn = '0'
+            pwr = ''
+            rf = ''
+            for i in s[1:].split():
+                [k,v] = i.split('=')
 
-    # cycle += 1
-    # print("cycle:", cycle)
+                print('k,v:', k, v)
 
-    # if cycle >= 20: break
-    # time.sleep(1)
-
+                if k == 'sn':
+                    sn = v
+                elif k == 'rf':
+                    if v != '0': rf = v
+                elif k == 'pwr':
+                    if v != '0': pwr = v
+                elif k in 'thdpwb': 
+                    update_data(data, k, v)
+                #
+            #
+        #
+    except Exception as e:
+        perr("error: "+str(e))
 #-
 
 #.
-
-
-
-
-
-# psw="secret"
-# url='http://example.com/dat?'
-# wget='wget -q -O - '
-# cycle_file='/tmp/cycle'    
-
-
-
-#   qs="hwid=${hwid}&cycle=${cycle}&t=${val}"
-#   hk = sha1sum(qs+psw)
-#   qs="${qs}&_hkey=${hk}"
