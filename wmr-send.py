@@ -56,8 +56,6 @@ def update_data(data, k, v):
     else:
         data[k] = {'min':v, 'max':v, 'sum':v, 'count':1}
     #
-
-    print("data:", k, data[k])
 #--
 
 
@@ -111,6 +109,8 @@ while True:
             #
             if pwr: data['pwr'+sn] = pwr
             if rf:  data['rf']  = rf
+
+            print(data)
         #
     except Exception as e:
         perr("error: "+str(e))
