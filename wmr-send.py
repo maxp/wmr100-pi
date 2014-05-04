@@ -45,11 +45,7 @@ def sender(data):
         print("***** send:", data)
         data.clear()
 
-        i = 0
-        while i < SEND_INTERVAL:
-            i += 1
-            time.sleep(1)    
-        #
+        time.sleep(SEND_INTERVAL)    
     #
 #--
 
@@ -81,7 +77,6 @@ RH_NUM = 16
 cycle = 0
 data = {}
 
-run_sender = True
 ct = Thread(target=sender, args=(data,))
 ct.start()
 
@@ -121,10 +116,10 @@ while True:
 
             print(data)
         #
+    except KeyboardInterrupt:
+        sys.exit(0)
     except Exception as e:
         perr("error: "+str(e))
 #-
-
-run_sender = False
 
 #.
