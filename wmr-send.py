@@ -43,6 +43,8 @@ def sender(data):
         #   qs="${qs}&_hkey=${hk}"
 
         print("***** send:", data)
+        data.clear()
+        
         time.sleep(SEND_INTERVAL)
     #
 #--
