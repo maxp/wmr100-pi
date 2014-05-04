@@ -30,19 +30,21 @@ def get_hwid():
 
 
 def sender(data):
-    # psw="secret"
-    # url='http://example.com/dat?'
-    # wget='wget -q -O - '
-    # cycle_file='/tmp/cycle'    
+    while True:
+        # psw="secret"
+        # url='http://example.com/dat?'
+        # wget='wget -q -O - '
+        # cycle_file='/tmp/cycle'    
 
 
 
-    #   qs="hwid=${hwid}&cycle=${cycle}&t=${val}"
-    #   hk = sha1sum(qs+psw)
-    #   qs="${qs}&_hkey=${hk}"
+        #   qs="hwid=${hwid}&cycle=${cycle}&t=${val}"
+        #   hk = sha1sum(qs+psw)
+        #   qs="${qs}&_hkey=${hk}"
 
-    print("send:", data)
-    time.sleep(SEND_INTERVAL)
+        print("***** send:", data)
+        time.sleep(SEND_INTERVAL)
+    #
 #--
 
 
