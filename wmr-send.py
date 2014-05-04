@@ -47,7 +47,7 @@ def sender(data):
 
         i = 0
         while i < SEND_INTERVAL:
-            i++
+            i += 1
             time.sleep(1)    
         #
     #
