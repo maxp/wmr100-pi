@@ -96,7 +96,7 @@ while True:
                 elif k in 'pwb': 
                     update_data(data, k, v)
                 elif k in 'thd':
-                    if sn == '0'
+                    if sn == '0':
                         update_data(data, k+'0', v)
                     else:
                         update_data(data, k, v)
