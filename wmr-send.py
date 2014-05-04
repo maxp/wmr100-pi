@@ -52,6 +52,7 @@ psw   = os.environ.get("PSW")
 data = {}
 
 ct = Thread(target=collector, args=(data,))
+ct.start()
 
 while True:
     cycle += 1
