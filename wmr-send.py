@@ -31,6 +31,9 @@ def get_hwid():
 
 def collector(data):
     """ collects data from stdin, updates data dict: min, max, total, count """
+
+    print("started")
+    
     s = sys.stdin.readline()
     while s:
         print("s:", s)
