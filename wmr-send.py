@@ -7,6 +7,7 @@
 
 from __future__ import print_function
 
+import hashlib
 import time
 from threading import Thread
 import subprocess
@@ -28,25 +29,71 @@ def get_hwid():
         return "???"
 #--
 
+def make_avg(d):
+    if not d:
+        return None
+    c = d.get('count')
+    if not c:
+        return None
+    v = d.get('sum')
+    if v is None:
+        return None
+    return "{:.1f}".format(float(v) / c)
+#--    
 
-def sender(data):
+def sender(collected_data):
+    global cycle
     while True:
-        # psw="secret"
-        # url='http://example.com/dat?'
-        # wget='wget -q -O - '
+        cycle += 1
+
+        d = collected_data.copy()
+        collected_data.clear()
+
+        qs = "hwid="+hwid+"&cycle="+cycle
+
+        x = make_avg(d.get('t1'))
+        if x is not None: qs += "&t="+x
+
+        x = make_avg(d.get('h1'))
+        if x is not None: qs += "&h="+x
+
+        x = make_avg(d.get('d1'))
+        if x is not None: qs += "&d="+x
+
+        x = make_avg(d.get('t0'))
+        if x is not None: qs += "&t0="+x
+
+        x = make_avg(d.get('h0'))
+        if x is not None: qs += "&h0="+x
+
+        x = make_avg(d.get('d0'))
+        if x is not None: qs += "&d0="+x
+
+        x = make_avg(d.get('p'))
+        if x is not None: qs += "&p="+x
+
+        x = make_avg(d.get('w'))
+        if x is not None: qs += "&w="+x
+
+        # calc rhumb
+
+        x = d.get("rf")
+        if x: qs += "&rf="+x
+
+        x = d.get("pwr")
+        if x: qs += "&pwr="+x
+
+
+        qs += "&_hkey="+hashlib.sha1().update(qs+psw).hexdigest()
+
+        print()
+        print("***** send:", d)
+        print("qs:", qs)
+        print()
+
+
+        # update cycle file if sent_ok
         # cycle_file='/tmp/cycle'    
-
-
-
-        #   qs="hwid=${hwid}&cycle=${cycle}&t=${val}"
-        #   hk = sha1sum(qs+psw)
-        #   qs="${qs}&_hkey=${hk}"
-
-        print()
-        print("***** send:", data)
-        print()
-
-        data.clear()
 
         time.sleep(SEND_INTERVAL)    
     #
@@ -69,10 +116,11 @@ def update_data(data, k, v):
 
 # constants
 
+url   = "http://rs.angara.net/dat?"
 hwid  = os.environ.get("HWID") or get_hwid()
 psw   = os.environ.get("PSW")  
 
-SEND_INTERVAL = 140
+SEND_INTERVAL = 100
 RH_NUM = 16
 
 # global data
@@ -105,13 +153,8 @@ while True:
                         data['rhc'] = rhc
                     #-
                     rhc[int(v)] += 1
-                elif k in 'pw': 
-                    update_data(data, k, v)
-                elif k in 'thd':
-                    if sn == '0':
-                        update_data(data, k+'0', v)
-                    else:
-                        update_data(data, k, v)
+                elif k in 'pw':  update_data(data, k, v)
+                elif k in 'thd': update_data(data, k+sn, v)
                 #
             #
             if pwr: data['pwr'+sn] = pwr
