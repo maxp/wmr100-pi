@@ -31,14 +31,13 @@ def get_hwid():
 #--
 
 
-def calc_b(rhumbs):
-    if not rhumbs:
+def calc_b(rhc):
+    if not rhc:
         return None
 
-    # find maximum
     m = 1
     p = -1
-    for i,r in enumerate(rhumbs):
+    for i,r in enumerate(rhc):
         if r >= m:
             m = r
             p = i
@@ -47,8 +46,8 @@ def calc_b(rhumbs):
         return None
 
     m  = float(m)
-    m0 = float(rhumbs[p-1])
-    m1 = float(rhumbs[(p+1) % len(rhumbs)])
+    m0 = float(rhc[p-1])
+    m1 = float(rhc[(p+1) % len(rhc)])
 
     return int((m-(m0/m*0.5)+(m1/m*0.5))*22.5)
 #-
@@ -108,7 +107,7 @@ def sender(collected_data):
                     qs += "&g="+"{:.1f}".format(float(g))
             #
 
-            x = calc_b(d.get("r"))
+            x = calc_b(d.get("rhc"))
             if x is not None: qs += "&b="+str(x+b_fix)
 
             x = d.get("rf")
