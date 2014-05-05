@@ -118,7 +118,7 @@ def update_data(data, k, v):
 
 url   = "http://rs.angara.net/dat?"
 hwid  = os.environ.get("HWID") or get_hwid()
-psw   = os.environ.get("PSW")  
+psw   = os.environ.get("PSW")  or ""
 
 SEND_INTERVAL = 100
 RH_NUM = 16
