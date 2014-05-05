@@ -32,7 +32,7 @@ def get_hwid():
 
 
 def calc_b(rhumbs):
-    if not r:
+    if not rhumbs:
         return None
 
     # find maximum
@@ -47,8 +47,8 @@ def calc_b(rhumbs):
         return None
 
     m  = float(m)
-    m0 = float(r[p-1])
-    m1 = float(r[(p+1) % len(r)])
+    m0 = float(rhumbs[p-1])
+    m1 = float(rhumbs[(p+1) % len(rhumbs)])
 
     return int((m-(m0/m*0.5)+(m1/m*0.5))*22.5)
 #-
@@ -169,7 +169,7 @@ hwid    = os.environ.get("HWID") or get_hwid()
 psw     = os.environ.get("PSW")  or ""
 b_fix   = 30    # dergrees
 
-SEND_INTERVAL = 100
+SEND_INTERVAL = 90
 RH_NUM = 16
 
 # global data
@@ -212,7 +212,7 @@ while True:
             print(data)
         #
     except KeyboardInterrupt:
-        perr("SIGTERM")
+        perr("sigterm.")
         import os
         os._exit(0)
     except Exception as e:
