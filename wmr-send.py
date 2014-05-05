@@ -49,7 +49,7 @@ def sender(collected_data):
         d = collected_data.copy()
         collected_data.clear()
 
-        qs = "hwid="+hwid+"&cycle="+cycle
+        qs = "hwid="+hwid+"&cycle="+str(cycle)
 
         x = make_avg(d.get('t1'))
         if x is not None: qs += "&t="+x
