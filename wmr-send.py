@@ -8,6 +8,7 @@
 from __future__ import print_function
 
 import hashlib
+import httplib
 import time
 from threading import Thread
 import subprocess
@@ -29,6 +30,29 @@ def get_hwid():
         return "???"
 #--
 
+
+def calc_b(rhumbs):
+    if not r:
+        return None
+
+    # find maximum
+    m = 1
+    p = -1
+    for i,r in enumerate(rhumbs):
+        if r >= m:
+            m = r
+            p = i
+    #-
+    if p < 0:
+        return None
+
+    m  = float(m)
+    m0 = float(r[p-1])
+    m1 = float(r[(p+1) % len(r)])
+
+    return int((m-(m0/m*0.5)+(m1/m*0.5))*22.5)
+#-
+
 def make_avg(d):
     if not d:
         return None
@@ -38,65 +62,82 @@ def make_avg(d):
     v = d.get('sum')
     if v is None:
         return None
-    return "{:.1f}".format(float(v) / c)
+    s = "{:.1f}".format(float(v) / c)
+    if s.endswith(".0"): return s[0:-2]
+    else: return s
 #--    
 
 def sender(collected_data):
     global cycle
     while True:
         cycle += 1
+        if collected_data:
+            d = collected_data.copy()
+            collected_data.clear()
 
-        d = collected_data.copy()
-        collected_data.clear()
+            qs = "hwid="+hwid+"&cycle="+str(cycle)
 
-        qs = "hwid="+hwid+"&cycle="+str(cycle)
+            x = make_avg(d.get('t1'))
+            if x is not None: qs += "&t="+x
 
-        x = make_avg(d.get('t1'))
-        if x is not None: qs += "&t="+x
+            x = make_avg(d.get('h1'))
+            if x is not None: qs += "&h="+x
 
-        x = make_avg(d.get('h1'))
-        if x is not None: qs += "&h="+x
+            x = make_avg(d.get('d1'))
+            if x is not None: qs += "&d="+x
 
-        x = make_avg(d.get('d1'))
-        if x is not None: qs += "&d="+x
+            x = make_avg(d.get('t0'))
+            if x is not None: qs += "&t0="+x
 
-        x = make_avg(d.get('t0'))
-        if x is not None: qs += "&t0="+x
+            x = make_avg(d.get('h0'))
+            if x is not None: qs += "&h0="+x
 
-        x = make_avg(d.get('h0'))
-        if x is not None: qs += "&h0="+x
+            x = make_avg(d.get('d0'))
+            if x is not None: qs += "&d0="+x
 
-        x = make_avg(d.get('d0'))
-        if x is not None: qs += "&d0="+x
+            x = make_avg(d.get('p'))
+            if x is not None: qs += "&p="+x
 
-        x = make_avg(d.get('p'))
-        if x is not None: qs += "&p="+x
+            x = make_avg(d.get('w'))
+            if x is not None: qs += "&w="+x
 
-        x = make_avg(d.get('w'))
-        if x is not None: qs += "&w="+x
+            x = d.get('w')
+            if x is not None:
+                g = x.get('max')
+                if g is not None: 
+                    qs += "&g="+"{:.1f}".format(float(g))
+            #
 
-        # calc rhumb
+            x = calc_b(d.get("r"))
+            if x is not None: qs += "&b="+str(x+b_fix)
 
-        x = d.get("rf")
-        if x: qs += "&rf="+x
+            x = d.get("rf")
+            if x: qs += "&rf="+x
 
-        x = d.get("pwr")
-        if x: qs += "&pwr="+x
-
-
-        sha1 = hashlib.sha1()
-        sha1.update(qs+psw)
-        qs += "&_hkey="+sha1.hexdigest()
-
-        print()
-        print("***** send:", d)
-        print("qs:", qs)
-        print()
+            x = d.get("pwr")
+            if x: qs += "&pwr="+x
 
 
-        # update cycle file if sent_ok
-        # cycle_file='/tmp/cycle'    
+            sha1 = hashlib.sha1()
+            sha1.update(qs+psw)
+            qs += "&_hkey="+sha1.hexdigest()
 
+            print()
+            print("*** qs:", qs)
+            print()
+
+
+            conn = httplib.HTTPConnection(host, port, timeout=timeout)
+            conn.request("GET", uri+qs)
+            resp = conn.getresponse()
+
+            if resp and resp.status == 200:
+                print("sent_ok")
+            #-
+            
+            # update cycle file if sent_ok
+            # cycle_file='/tmp/cycle'    
+        #
         time.sleep(SEND_INTERVAL)    
     #
 #--
@@ -118,9 +159,14 @@ def update_data(data, k, v):
 
 # constants
 
-url   = "http://rs.angara.net/dat?"
-hwid  = os.environ.get("HWID") or get_hwid()
-psw   = os.environ.get("PSW")  or ""
+host    = "rs.angara.net"
+port    = 80
+uri     = "/dat?"
+timeout = 30
+
+hwid    = os.environ.get("HWID") or get_hwid()
+psw     = os.environ.get("PSW")  or ""
+b_fix   = 30    # dergrees
 
 SEND_INTERVAL = 100
 RH_NUM = 16
