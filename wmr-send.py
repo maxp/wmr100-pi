@@ -35,6 +35,8 @@ def calc_b(rhc):
     if not rhc:
         return None
 
+    print("rhc:", rhc)
+
     m = 1
     p = -1
     for i,r in enumerate(rhc):
@@ -49,7 +51,9 @@ def calc_b(rhc):
     m0 = float(rhc[p-1])
     m1 = float(rhc[(p+1) % len(rhc)])
 
-    return int((m-(m0/m*0.5)+(m1/m*0.5))*22.5)
+    print("p,m0,m,m1:", p, m0, m, m1)
+
+    return int((p-(m0/m*0.5)+(m1/m*0.5))*22.5)
 #-
 
 def make_avg(d):
