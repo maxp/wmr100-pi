@@ -133,8 +133,9 @@ def sender(collected_data):
 
             if resp and resp.status == 200:
                 print("sent_ok")
-            #-
-            
+            else:
+                perr("resp:"+str(resp))
+
             # update cycle file if sent_ok
             # cycle_file='/tmp/cycle'    
         #
@@ -212,7 +213,8 @@ while True:
         #
     except KeyboardInterrupt:
         perr("SIGTERM")
-        sys.exit(0)
+        import os
+        os._exit(0)
     except Exception as e:
         perr("error: "+str(e))
 #-
