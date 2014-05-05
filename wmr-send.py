@@ -84,7 +84,9 @@ def sender(collected_data):
         if x: qs += "&pwr="+x
 
 
-        qs += "&_hkey="+hashlib.sha1().update(qs+psw).hexdigest()
+        sha1 = hashlib.sha1()
+        sha1.update(qs+psw)
+        qs += "&_hkey="+sha1.hexdigest()
 
         print()
         print("***** send:", d)
