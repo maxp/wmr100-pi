@@ -21,11 +21,9 @@ import os
 host    = "rs.angara.net"
 port    = 80
 uri     = "/dat?"
-timeout = 30
+timeout = 30    # seconds
 
-hwid    = os.environ.get("HWID") or get_hwid()
-psw     = os.environ.get("PSW")  or ""
-b_fix   = 30    # dergrees
+b_fix   = 30    # wind bearing correction value
 
 log_file = "/tmp/wmr100.log"
 log_size = 100*1000
@@ -48,6 +46,9 @@ def get_hwid():
         perr(str(ex))
         return "???"
 #--
+
+hwid    = os.environ.get("HWID") or get_hwid()
+psw     = os.environ.get("PSW")  or ""
 
 
 def calc_b(rhc):
