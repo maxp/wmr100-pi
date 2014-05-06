@@ -225,7 +225,7 @@ ct.start()
 while True:
     try:
         s = sys.stdin.readline()
-        if s: print(s.trim())
+        if s: print(s.strip())
         if s[0] == '*':
             sn = '0'
             pwr = ''
