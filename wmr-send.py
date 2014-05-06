@@ -18,7 +18,7 @@ import os
 
 #----#
 
-host    = "rs.angara.net"
+host    = "_rs.angara.net"
 port    = 80
 uri     = "/dat?"
 timeout = 30    # seconds
@@ -159,7 +159,7 @@ def sender(collected_data):
                 qs += "&b="+str(x+b_fix)
                 b = str(x+b_fix)
             print( "  w:", w, g, b, file=logf)
-            print( "  rhc:", d.get("rhc"), file=logf)
+            print( "  rhc:", d.get("rhc","-"), file=logf)
 
             x = d.get("rf")
             if x: qs += "&rf="+x
@@ -176,13 +176,13 @@ def sender(collected_data):
             resp = conn.getresponse()
 
             if resp and resp.status == 200:
-                print(" http: ok", file=logf)
+                print("  http: ok", file=logf)
                 cf = open(cycle_file, "w")
                 print(cycle, file=cf)
                 cf.close()
             else:
                 perr("resp:"+str(resp))
-                print(" http:", str(resp), file=logf)
+                print("  http:", str(resp), file=logf)
 
             logf.close()
 
@@ -224,6 +224,7 @@ ct.start()
 while True:
     try:
         s = sys.stdin.readline()
+        print(s)
         if s[0] == '*':
             sn = '0'
             pwr = ''
@@ -250,7 +251,7 @@ while True:
             if pwr: data['pwr'+sn] = pwr
             if rf:  data['rf']  = rf
 
-            print(data)
+            # print(data)
         #
     except KeyboardInterrupt:
         perr("sigterm.")
