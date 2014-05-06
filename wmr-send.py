@@ -157,8 +157,8 @@ def sender(collected_data):
                 #
                 x = calc_b(d.get("rhc"))
                 if x is not None: 
-                    qs += "&b="+str(x+b_fix)
-                    b = str(x+b_fix)
+                    qs += "&b="+str((x+b_fix) % 360)
+                    b = str((x+b_fix) % 360)
                 print( "  w:", w, g, b, file=logf)
                 print( "  rhc:", d.get("rhc","-"), file=logf)
 
