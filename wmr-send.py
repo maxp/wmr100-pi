@@ -191,7 +191,7 @@ def sender(collected_data):
                     os.rename(log_file, log_file+".old")
             #
         except Exception as ex:
-            perr("error:", str(ex))
+            perr("error: "+str(ex))
         #
         time.sleep(SEND_INTERVAL)    
     #
