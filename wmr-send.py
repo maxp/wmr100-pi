@@ -18,7 +18,7 @@ import os
 
 #----#
 
-host    = "_rs.angara.net"
+host    = "rs.angara.net"
 port    = 80
 uri     = "/dat?"
 timeout = 30    # seconds
