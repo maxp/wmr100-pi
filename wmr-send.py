@@ -16,6 +16,25 @@ import sys
 import re
 import os
 
+#----#
+
+host    = "rs.angara.net"
+port    = 80
+uri     = "/dat?"
+timeout = 30
+
+hwid    = os.environ.get("HWID") or get_hwid()
+psw     = os.environ.get("PSW")  or ""
+b_fix   = 30    # dergrees
+
+log_file = "/tmp/wmr100.log"
+log_size = 100*1000
+cycle_file = "/tmp/wmr100.cycle"
+
+SEND_INTERVAL = 90
+
+#----#
+
 
 def perr(msg):
     print(msg, file=sys.stderr)
@@ -51,8 +70,6 @@ def calc_b(rhc):
     m0 = float(rhc[p-1])
     m1 = float(rhc[(p+1) % len(rhc)])
 
-    print("p,m0,m,m1:", p, m0, m, m1)
-
     return int((p-(m0/m*0.5)+(m1/m*0.5))*22.5)
 #-
 
@@ -78,69 +95,101 @@ def sender(collected_data):
             d = collected_data.copy()
             collected_data.clear()
 
+            logf = open(log_file, "a")
+
+            print(time.strftime("%Y-%m-%d %H:%M:%s"),"-", cycle, file=logf)
+
             qs = "hwid="+hwid+"&cycle="+str(cycle)
 
+            t = t0 = "???"
             x = make_avg(d.get('t1'))
-            if x is not None: qs += "&t="+x
-
-            x = make_avg(d.get('h1'))
-            if x is not None: qs += "&h="+x
-
-            x = make_avg(d.get('d1'))
-            if x is not None: qs += "&d="+x
-
+            if x is not None: 
+                qs += "&t="+x
+                t = x
             x = make_avg(d.get('t0'))
-            if x is not None: qs += "&t0="+x
+            if x is not None: 
+                qs += "&t0="+x
+                t0 = x
+            print(" t:", str(t), str(t0), file=logf)
 
+            h = h0 = "???"
+            x = make_avg(d.get('h1'))
+            if x is not None: 
+                qs += "&h="+x
+                h = x
             x = make_avg(d.get('h0'))
-            if x is not None: qs += "&h0="+x
+            if x is not None: 
+                qs += "&h0="+x
+                h0 = x
+            print(" h:", str(h), str(h0), file=logf)
 
+            dp = dp0 = "???" 
+            x = make_avg(d.get('d1'))
+            if x is not None: 
+                qs += "&d="+x
+                dp = x
             x = make_avg(d.get('d0'))
-            if x is not None: qs += "&d0="+x
+            if x is not None: 
+                qs += "&d0="+x
+                dp0 = x
+            print(" d:", str(dp), str(dp0), file=logf)
 
+            p = "???"
             x = make_avg(d.get('p'))
-            if x is not None: qs += "&p="+x
+            if x is not None: 
+                qs += "&p="+x
+                p = x
+            print(" p:", p, file=logf)
 
+            w = g = b = "???"
             x = make_avg(d.get('w'))
-            if x is not None: qs += "&w="+x
-
+            if x is not None: 
+                qs += "&w="+x
+                w = x
             x = d.get('w')
             if x is not None:
                 g = x.get('max')
                 if g is not None: 
                     qs += "&g="+"{:.1f}".format(float(g))
+                    g = "{:.1f}".format(float(g))
             #
-
             x = calc_b(d.get("rhc"))
-            if x is not None: qs += "&b="+str(x+b_fix)
+            if x is not None: 
+                qs += "&b="+str(x+b_fix)
+                b = str(x+b_fix)
+            print( " w:", w, g, b, file=logf)
+            print( " rhc:", d.get("rhc"), file=logf)
 
             x = d.get("rf")
             if x: qs += "&rf="+x
-
             x = d.get("pwr")
             if x: qs += "&pwr="+x
-
+            print( " pwr/rf:", d.get("pwr","-"), d.get("rf","-"), file=logf)
 
             sha1 = hashlib.sha1()
             sha1.update(qs+psw)
             qs += "&_hkey="+sha1.hexdigest()
-
-            print()
-            print("*** qs:", qs)
-            print()
-
 
             conn = httplib.HTTPConnection(host, port, timeout=timeout)
             conn.request("GET", uri+qs)
             resp = conn.getresponse()
 
             if resp and resp.status == 200:
-                print("sent_ok")
+                print(" http: ok", file=logf)
+                cf = open(cycle_file, "w")
+                print(cycle, file=cf)
+                cf.close()
             else:
                 perr("resp:"+str(resp))
+                print(" http:", str(resp), file=logf)
 
-            # update cycle file if sent_ok
-            # cycle_file='/tmp/cycle'    
+            logf.close()
+
+            try:
+                if os.stat(log_file).st_size > log_size:
+                    os.rename(log_file, log_file+".old")
+            except Exception:
+                perr("log rotate error")
         #
         time.sleep(SEND_INTERVAL)    
     #
@@ -160,25 +209,13 @@ def update_data(data, k, v):
     #
 #--
 
-
-# constants
-
-host    = "rs.angara.net"
-port    = 80
-uri     = "/dat?"
-timeout = 30
-
-hwid    = os.environ.get("HWID") or get_hwid()
-psw     = os.environ.get("PSW")  or ""
-b_fix   = 30    # dergrees
-
-SEND_INTERVAL = 90
-RH_NUM = 16
-
 # global data
+
+RH_NUM = 16
 
 cycle = 0
 data = {}
+
 
 ct = Thread(target=sender, args=(data,))
 ct.start()
