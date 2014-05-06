@@ -98,7 +98,7 @@ def sender(collected_data):
 
             logf = open(log_file, "a")
 
-            print(time.strftime("%Y-%m-%d %H:%M:%s"),"-", cycle, file=logf)
+            print(time.strftime("%Y-%m-%d %H:%M:%S")," - ", cycle, file=logf)
 
             qs = "hwid="+hwid+"&cycle="+str(cycle)
 
@@ -111,7 +111,7 @@ def sender(collected_data):
             if x is not None: 
                 qs += "&t0="+x
                 t0 = x
-            print(" t:", str(t), str(t0), file=logf)
+            print("  t:", str(t), str(t0), file=logf)
 
             h = h0 = "???"
             x = make_avg(d.get('h1'))
@@ -122,7 +122,7 @@ def sender(collected_data):
             if x is not None: 
                 qs += "&h0="+x
                 h0 = x
-            print(" h:", str(h), str(h0), file=logf)
+            print("  h:", str(h), str(h0), file=logf)
 
             dp = dp0 = "???" 
             x = make_avg(d.get('d1'))
@@ -133,14 +133,14 @@ def sender(collected_data):
             if x is not None: 
                 qs += "&d0="+x
                 dp0 = x
-            print(" d:", str(dp), str(dp0), file=logf)
+            print("  d:", str(dp), str(dp0), file=logf)
 
             p = "???"
             x = make_avg(d.get('p'))
             if x is not None: 
                 qs += "&p="+x
                 p = x
-            print(" p:", p, file=logf)
+            print("  p:", p, file=logf)
 
             w = g = b = "???"
             x = make_avg(d.get('w'))
@@ -158,14 +158,14 @@ def sender(collected_data):
             if x is not None: 
                 qs += "&b="+str(x+b_fix)
                 b = str(x+b_fix)
-            print( " w:", w, g, b, file=logf)
-            print( " rhc:", d.get("rhc"), file=logf)
+            print( "  w:", w, g, b, file=logf)
+            print( "  rhc:", d.get("rhc"), file=logf)
 
             x = d.get("rf")
             if x: qs += "&rf="+x
             x = d.get("pwr")
             if x: qs += "&pwr="+x
-            print( " pwr/rf:", d.get("pwr","-"), d.get("rf","-"), file=logf)
+            print( "  pwr/rf:", d.get("pwr","-"), d.get("rf","-"), file=logf)
 
             sha1 = hashlib.sha1()
             sha1.update(qs+psw)
