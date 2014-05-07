@@ -5,7 +5,7 @@
 #   on.environ {HWID,PSW}
 #
 # /etc/rc.local:
-# (cd /home/pi/wmr100-pi; export PSW="qwe123"; ./wmr100 | ./wmr-send;)
+# (export WD="/home/pi/wmr100-pi"; export PSW="qwe123"; $WD/wmr100 | $WD/wmr-send.py;)
 
 from __future__ import print_function
 
@@ -159,7 +159,7 @@ def sender(collected_data):
                 #
                 x = calc_b(d.get("rhc"))
                 if x is not None: 
-                    qs += "&b="+str((x+b_fix) %3 60)
+                    qs += "&b="+str((x+b_fix) % 360)
                     b = str((x+b_fix) % 360)
                 print( "  w:", w, g, b, file=logf)
                 print( "  rhc:", d.get("rhc","-"), file=logf)
