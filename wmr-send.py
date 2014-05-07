@@ -5,7 +5,7 @@
 #   on.environ {HWID,PSW}
 #
 # /etc/rc.local:
-# (export WD="/home/pi/wmr100-pi"; export PSW="qwe123"; $WD/wmr100 | $WD/wmr-send.py;)
+# (export WD="/home/pi/wmr100-pi"; export PSW="qwe123"; $WD/wmr100 | $WD/wmr-send.py;)&
 
 from __future__ import print_function
 
