@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 
-#   read wmr100-pi data from stdin and send it to rs.angara.net
-
+#   read wmr100-pi data from stdin, send arrregate to rs.angara.net
+#
 #   on.environ {HWID,PSW}
-
+#
+# /etc/rc.local:
+# (cd /home/pi/wmr100-pi; export PSW="qwe123"; ./wmr100 | ./wmr-send;)
 
 from __future__ import print_function
 
 import hashlib
 import httplib
 import time
-from threading import Thread
+import threading
 import subprocess
 import sys
 import re
@@ -29,7 +31,7 @@ log_file = "/tmp/wmr100.log"
 log_size = 100*1000
 cycle_file = "/tmp/wmr100.cycle"
 
-SEND_INTERVAL = 90
+SEND_INTERVAL = 90  #280
 
 #----#
 
@@ -157,7 +159,7 @@ def sender(collected_data):
                 #
                 x = calc_b(d.get("rhc"))
                 if x is not None: 
-                    qs += "&b="+str((x+b_fix) % 360)
+                    qs += "&b="+str((x+b_fix) %3 60)
                     b = str((x+b_fix) % 360)
                 print( "  w:", w, g, b, file=logf)
                 print( "  rhc:", d.get("rhc","-"), file=logf)
@@ -219,7 +221,7 @@ cycle = 0
 data = {}
 
 
-ct = Thread(target=sender, args=(data,))
+ct = threading.Thread(target=sender, args=(data,))
 ct.start()
 
 while True:
