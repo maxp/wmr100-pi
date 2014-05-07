@@ -31,7 +31,7 @@ log_file = "/tmp/wmr100.log"
 log_size = 100*1000
 cycle_file = "/tmp/wmr100.cycle"
 
-SEND_INTERVAL = 90  #280
+SEND_INTERVAL = 280
 
 #----#
 
