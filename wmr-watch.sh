@@ -14,8 +14,8 @@ echo "c0:" $c0
 echo "c1:" $c1
 
 if ["$c0" == "$c1"]; then 
-    echo "reboot"
-    # reboot
+    echo "reboot" > /tmp/reboot-it
+    # /sbin/reboot
 fi
 
 #.
