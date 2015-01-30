@@ -84,6 +84,15 @@ https://github.com/think-free/pi-scripts/raw/master/InstallWmr100OnPi.sh
     make
 
 
+    gcc wmr100.c -l hid
+
+    apt-get install fping
+
+    # /etc/crontab
+    #
+    # */20 *  * *  *  root  fping -q 8.8.8.8 || /sbin/reboot
+    #
+    #.
 
 Usage
 -----

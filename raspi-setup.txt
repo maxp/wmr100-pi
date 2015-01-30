@@ -1,0 +1,163 @@
+
+### Raspberry Pi setup
+
+(30.01.2015)
+
+
+http://downloads.raspberrypi.org/raspbian_latest
+#  2014-12-24-wheezy-raspbian.zip
+
+dd if=2014-12-24-wheezy-raspbian.img od=/dev/mmcblk0
+
+# gparted - resize: 1Gb (/), xxGb (/home)
+
+
+raspi-config:
+    locale: en_US.UTF-8
+    timezone: Asia/Irkutsk
+    keyboard: English-US
+    user: pi, password: pi
+    boot: commandline
+    GPU memory: minimum
+    ssh: enable
+
+
+/etc/network/interfaces:
+
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 10.xx.xx.yy
+    netmask 255.255.255.0
+    gateway 10.xx.xx.zz
+#.
+
+echo "" > /etc/motd
+
+
+apt-get update
+apt-get upgrade
+
+apt-get install vim ntpdate
+# apt-get install ppp wvdial
+
+/etc/wvdial.conf:
+
+[Dialer Defaults]
+Init1 = ATZ
+Init2 = ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
+Modem Type = Analog Modem
+Baud = 9600
+New PPPD = yes
+Modem = /dev/ttyUSB0
+ISDN = 0
+
+[Dialer megafon]
+Modem = /dev/ttyUSB0
+Baud = 115200
+Init1 = ATZ
+Init2 = AT+CGDCONT=1,"IP","internet"
+Dial Command = ATD
+Phone = *99***1#
+Stupid Mode = 1
+Username = \n
+Password = \n
+
+#.
+
+/etc/fstab:
+
+proc            /proc  proc    defaults                              0 0
+/dev/mmcblk0p1  /boot  vfat    ro                                    0 2
+/dev/mmcblk0p2  /      ext4    ro                                    0 1
+/dev/mmcblk0p3  /home  ext4    defaults,noatime                      0 2
+tmpfs  /tmp            tmpfs   defaults,mode=1777,size=1M            0 0
+tmpfs  /var/log        tmpfs   nodev,nosuid,mode=0755,size=1M        0 0
+tmpfs  /var/lock       tmpfs   nodev,nosuid,mode=0755,size=64k       0 0
+tmpfs  /var/lib/sudo   tmpfs   nodev,nosuid,mode=0700,size=64k       0 0
+
+#.
+
+/boot/cmdline.txt +ro
+
+
+# rm /etc/init.d/dphys-swapfile
+apt-get purge -y --auto-remove dphys-swapfile
+
+apt-get purge -y --auto-remove scratch \
+  debian-reference-en dillo idle3 python3-tk idle python-pygame python-tk \
+  lightdm gnome-icon-theme raspberrypi-artwork \
+  gvfs-backends gvfs-fuse desktop-base lxpolkit netsurf-gtk zenity \
+  gtk2-engines alsa-utils lxde lxtask menu-xdg gksu xdg-utils \
+  midori xserver-xorg xinit xserver-xorg-video-fbdev lxde-icon-theme \
+  dbus-x11 libx11-6 libx11-data libx11-xcb1 x11-common x11-utils \
+  cups-common libcups2 python3-picamera samba-common smbclient \
+  java-common omxplayer penguinspuzzle fake-hwclock
+
+rm -rf /usr/share/icons/
+rm -rf /lib/modules/3.10.25+/kernel/sound/
+rm /etc/cron.weekly/man.db 
+rm /etc/cron.daily/man.db
+rm from /etc/cron.daily/all except [logrotate,ntp]
+
+
+mount --bind / /mnt
+rm /mnt/var/log/*
+rm /mnt/var/swap
+
+/boot/cmdline.txt:
+root=... ro ...
+
+
+/sbin/fake-hwclock:
+    FILE=/home/.fake-hwclock.data
+
+/etc/cron.daily/logrotate:
+
+#!/bin/sh
+test -x /usr/sbin/logrotate || exit 0
+/usr/sbin/logrotate --state /var/log/.logrotate.state /etc/logrotate.conf
+
+#.
+
+
+mount / -o remount,rw
+    ...
+mount / -o remount,ro
+
+
+# ?
+/usr/lib/dhcpcd/dhcpcd-hooks/50-ntp:
+/etc/default/ntp
+
+#!/bin/sh
+case "${reason}" in
+    BOUND|INFORM|REBIND|REBOOT|RENEW|TIMEOUT|STATIC)
+        # "-g" allows for large time differences
+        ntpd -qg
+        ;;
+esac
+#.
+
+
+
+
+### Other
+
+http://archive.raspbian.org/raspbian/dists/wheezy/main/binary-armhf/Packages
+
+/etc/apt/sources.list:
+deb http://archive.raspbian.org/raspbian wheezy main contrib non-free rpi
+deb-src http://archive.raspbian.org/raspbian wheezy main contrib non-free rpi
+#.
+
+wget http://archive.raspbian.org/raspbian.public.key -O - | sudo apt-key add -
+#
+
+-march=armv6
+-mfpu=vfp
+-mfloat-abi=hard
+
+###.
